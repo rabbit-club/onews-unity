@@ -103,7 +103,7 @@ public class MainController : MonoBehaviour
 		    	if (shortDescription != null) {
 		    		// 位置を初期化
 		    		shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
-		    		shortDescription.GetComponent<Text> ().text = article.description;
+					shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
 		    	}
 		    
 		    	// 記事タイトルの表示
