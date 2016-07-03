@@ -71,56 +71,56 @@ public class MainController : MonoBehaviour
 				continue;
 			}
 
-		    // JSON取得
+			// JSON取得
 			WWW wwwArticles = new WWW (Convert.ToString(articlesUrl));
 			yield return wwwArticles;
 			ArticleData[] articles = JsonMapper.ToObject<ArticleData[]> (wwwArticles.text);
 			// TODO: 現在時刻から近い順に並び替え
-		    
-		    // ローカルキャッシュを作成する
-//		    createLocalCache(articles);
-		    if(isOffLine) {
-		    	return false;
-		    }
-		    foreach (var article in articles) {
-		    	// 音声の取得と再生
-		    	yield return new WaitForSeconds (audioTime);
-		    	StartCoroutine (download (article.voice));
-		    	yield return new WaitForSeconds (1.0f);
-		    
-		    	// 画像を取得する
-		    	if (article.image == "") {
-		    		article.image = "http://i.yimg.jp/images/jpnews/cre/common/all/images/fbico_ogp_1200x630.png";
-		    	}
-		    	WWW wwwImage = new WWW (article.image);
+			
+			// ローカルキャッシュを作成する
+//			createLocalCache(articles);
+			if(isOffLine) {
+				return false;
+			}
+			foreach (var article in articles) {
+				// 音声の取得と再生
+				yield return new WaitForSeconds (audioTime);
+				StartCoroutine (download (article.voice));
+				yield return new WaitForSeconds (1.0f);
+			
+				// 画像を取得する
+				if (article.image == "") {
+					article.image = "http://i.yimg.jp/images/jpnews/cre/common/all/images/fbico_ogp_1200x630.png";
+				}
+				WWW wwwImage = new WWW (article.image);
 				yield return wwwImage;
-		    
+			
 				Texture2D tex = wwwImage.texture;
-		    	// 画像をリサイズする
-		    	reseizeTexture(tex);
-		    
-		    	// 要約記事テキストの表示
-		    	if (shortDescription != null) {
-		    		// 位置を初期化
-		    		shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
+				// 画像をリサイズする
+				reseizeTexture(tex);
+			
+				// 要約記事テキストの表示
+				if (shortDescription != null) {
+					// 位置を初期化
+					shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
 					shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
-		    	}
-		    
-		    	// 記事タイトルの表示
-		    	if (title != null) {
-		    		title.GetComponent<Text> ().text = article.title;
-		    	}
-		    
-		    	// シークバーを動かす
-		    	if (circle != null) {
-		    		circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
-		    		iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
-		    	}
-		    
-		    	// 音声時間maxの表示
-		    	TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
-		    	endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
-		    }
+				}
+			
+				// 記事タイトルの表示
+				if (title != null) {
+					title.GetComponent<Text> ().text = article.title;
+				}
+			
+				// シークバーを動かす
+				if (circle != null) {
+					circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
+					iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
+				}
+			
+				// 音声時間maxの表示
+				TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
+				endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
+			}
 		}
 			
 	}
