@@ -1,2 +1,2 @@
-# hd2016-unity
-ONEWS(Unity)
+# onews-unity
+ONEWS (Unity)
