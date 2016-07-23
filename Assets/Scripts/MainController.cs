@@ -28,6 +28,8 @@ public class MainController : MonoBehaviour
 	UnityChanTouch unityChanTouch;
 	bool isOffLine = false;
 
+	UIController uiController;
+
 	// ディスプレイサイズ
 	double displayWidth = 400;
 	double displayHeight = 300;
@@ -50,6 +52,8 @@ public class MainController : MonoBehaviour
 		startTime = GameObject.Find ("Canvas/Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
+
+		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
@@ -109,6 +113,7 @@ public class MainController : MonoBehaviour
 				// 記事タイトルの表示
 				if (title != null) {
 					title.GetComponent<Text> ().text = article.title;
+					uiController.currentUrl = article.link;
 				}
 			
 				// シークバーを動かす
