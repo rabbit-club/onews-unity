@@ -53,6 +53,8 @@ public class MainController : MonoBehaviour
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
 
+		ScrollController scrollController = GameObject.Find ("Viewport/Content").GetComponent<ScrollController> ();
+
 		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
@@ -68,6 +70,7 @@ public class MainController : MonoBehaviour
 		WWW wwwArticlesUrlList = new WWW (articlesUrlListURL);
 		yield return wwwArticlesUrlList;
 		LitJson.JsonData articlesUrlList = JsonMapper.ToObject(wwwArticlesUrlList.text);
+		// TODO: 現在時刻から近い順に並び替え
 
 		foreach (var key in articlesUrlList.Keys) {
 			string articlesUrl = Convert.ToString(articlesUrlList[key]);
@@ -79,8 +82,22 @@ public class MainController : MonoBehaviour
 			WWW wwwArticles = new WWW (Convert.ToString(articlesUrl));
 			yield return wwwArticles;
 			ArticleData[] articles = JsonMapper.ToObject<ArticleData[]> (wwwArticles.text);
-			// TODO: 現在時刻から近い順に並び替え
-			
+			// TODO: 記事が6件(仮)溜まるまでcontinue
+
+			// 先に前の周のitemを削除
+			GameObject[] oldListItems = GameObject.FindGameObjectsWithTag("ListItem");
+			foreach (GameObject item in oldListItems) {
+				Destroy (item);
+			}
+
+			// リストのitem生成
+			// TODO: 切り替わるタイミングが早いため修正
+			int itemNumber = 0;
+			foreach (var article in articles) {
+				scrollController.setItem (itemNumber, article.title, article.image, article.link);
+				itemNumber++;
+			}
+
 			// ローカルキャッシュを作成する
 //			createLocalCache(articles);
 			if(isOffLine) {
