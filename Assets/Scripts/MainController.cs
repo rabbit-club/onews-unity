@@ -5,6 +5,7 @@ using UnityChan;
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 using LitJson;
 using System.Linq;
 
@@ -33,6 +34,8 @@ public class MainController : MonoBehaviour
 	// ディスプレイサイズ
 	double displayWidth = 400;
 	double displayHeight = 300;
+
+	int articleHunkCount = 6;
 
 	public void Movie ()
 	{
@@ -72,6 +75,8 @@ public class MainController : MonoBehaviour
 		LitJson.JsonData articlesUrlList = JsonMapper.ToObject(wwwArticlesUrlList.text);
 		// TODO: 現在時刻から近い順に並び替え
 
+		List<ArticleData> articlesHunk = new List<ArticleData>();
+
 		foreach (var key in articlesUrlList.Keys) {
 			string articlesUrl = Convert.ToString(articlesUrlList[key]);
 			if (String.IsNullOrEmpty(articlesUrl)) {
@@ -82,7 +87,16 @@ public class MainController : MonoBehaviour
 			WWW wwwArticles = new WWW (Convert.ToString(articlesUrl));
 			yield return wwwArticles;
 			ArticleData[] articles = JsonMapper.ToObject<ArticleData[]> (wwwArticles.text);
-			// TODO: 記事が6件(仮)溜まるまでcontinue
+
+			List<ArticleData> articlesList = new List<ArticleData>();
+			foreach (var article in articles) {
+				articlesHunk.Add (article);
+			}
+
+			// 記事数が一定量になるまで溜める
+			if (articlesHunk.Count < articleHunkCount) {
+				continue;
+			}
 
 			// 先に前の周のitemを削除
 			GameObject[] oldListItems = GameObject.FindGameObjectsWithTag("ListItem");
@@ -93,7 +107,7 @@ public class MainController : MonoBehaviour
 			// リストのitem生成
 			// TODO: 切り替わるタイミングが早いため修正
 			int itemNumber = 0;
-			foreach (var article in articles) {
+			foreach (var article in articlesHunk) {
 				scrollController.setItem (itemNumber, article.title, article.image, article.link);
 				itemNumber++;
 			}
@@ -103,7 +117,7 @@ public class MainController : MonoBehaviour
 			if(isOffLine) {
 				return false;
 			}
-			foreach (var article in articles) {
+			foreach (var article in articlesHunk) {
 				// 音声の取得と再生
 				yield return new WaitForSeconds (audioTime);
 				StartCoroutine (download (article.voice));
@@ -143,6 +157,8 @@ public class MainController : MonoBehaviour
 				TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
 				endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
 			}
+
+			articlesHunk = new List<ArticleData>();
 		}
 			
 	}
