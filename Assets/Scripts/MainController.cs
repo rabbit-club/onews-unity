@@ -108,7 +108,17 @@ public class MainController : MonoBehaviour
 			// TODO: 切り替わるタイミングが早いため修正
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
-				scrollController.setItem (itemNumber, article.title, article.image, article.link);
+				// 画像を取得する
+				if (article.image == "") {
+					article.image = "http://i.yimg.jp/images/jpnews/cre/common/all/images/fbico_ogp_1200x630.png";
+				}
+				WWW wwwImage = new WWW (article.image);
+				yield return wwwImage;
+
+				Texture2D texture = wwwImage.texture;
+				article.texture = texture;
+
+				scrollController.setItem (itemNumber, article.title, texture, article.link);
 				itemNumber++;
 			}
 
@@ -122,17 +132,9 @@ public class MainController : MonoBehaviour
 				yield return new WaitForSeconds (audioTime);
 				StartCoroutine (download (article.voice));
 				yield return new WaitForSeconds (1.0f);
-			
-				// 画像を取得する
-				if (article.image == "") {
-					article.image = "http://i.yimg.jp/images/jpnews/cre/common/all/images/fbico_ogp_1200x630.png";
-				}
-				WWW wwwImage = new WWW (article.image);
-				yield return wwwImage;
-			
-				Texture2D tex = wwwImage.texture;
-				// 画像をリサイズする
-				reseizeTexture(tex);
+
+				// 画像を表示
+				DisplaySprite.sprite = reseizeTexture(article.texture);
 			
 				// 要約記事テキストの表示
 				if (shortDescription != null) {
@@ -201,12 +203,12 @@ public class MainController : MonoBehaviour
 	}
 
 	// 画像をディスプレイに内接する最大サイズにリサイズしてセット
-	void reseizeTexture(Texture2D tex) {
-		double texWidth = tex.width;
-		double texHeight = tex.height;
+	Sprite reseizeTexture(Texture2D texture) {
+		double texWidth = texture.width;
+		double texHeight = texture.height;
 		double ratio = 1;
 
-		// 4:3よりも縦長か横長か
+		// 表示領域の比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
 		}  else {
@@ -218,9 +220,9 @@ public class MainController : MonoBehaviour
 		int width = (int)Math.Ceiling (dWidth);
 		int height = (int)Math.Ceiling (dHeight);
 
-		TextureScale.Bilinear (tex, width, height);
-		DisplaySprite.sprite = Sprite.Create (
-			tex, 
+		TextureScale.Bilinear (texture, width, height);
+		return Sprite.Create (
+			texture, 
 			new Rect (0, 0, width, height), 
 			new Vector2 (0.5f, 0.5f)
 		);
@@ -239,5 +241,6 @@ public class MainController : MonoBehaviour
 		public string description;
 		public string image;
 		public string voice;
+		public Texture2D texture;
 	}
 }
