@@ -88,7 +88,6 @@ public class MainController : MonoBehaviour
 			yield return wwwArticles;
 			ArticleData[] articles = JsonMapper.ToObject<ArticleData[]> (wwwArticles.text);
 
-			List<ArticleData> articlesList = new List<ArticleData>();
 			foreach (var article in articles) {
 				articlesHunk.Add (article);
 			}
