@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -7,7 +8,11 @@ public class ScrollController : MonoBehaviour {
 	[SerializeField]
 	RectTransform prefab = null;
 
-	public void setItem(int number, string text, string imgUrl, string articleUrl) 
+	// ディスプレイサイズ
+	double displayWidth = 200;
+	double displayHeight = 150;
+
+	public void setItem(int number, string text, Texture2D texture, string articleUrl) 
 	{
 		var item = GameObject.Instantiate(prefab) as RectTransform;
 		item.SetParent(transform, true);
@@ -20,7 +25,34 @@ public class ScrollController : MonoBehaviour {
 		var itemText = item.GetComponentInChildren<Text>();
 		itemText.text = text;
 
-		// TODO: 画像とURLもやる
-		// TODO: プレハブが適当なので修正
+		var itemImage = item.GetComponentInChildren<Image>();
+		itemImage.sprite = reseizeTexture(texture);
+
+		// TODO: URLもやる
+	}
+
+	Sprite reseizeTexture(Texture2D texture) {
+		double texWidth = texture.width;
+		double texHeight = texture.height;
+		double ratio = 1;
+
+		// 表示領域の比率よりも縦長か横長か
+		if (texWidth / texHeight >= displayWidth / displayHeight) {
+			ratio = displayWidth / texWidth;
+		}  else {
+			ratio = displayHeight / texHeight;
+		}
+
+		double dWidth = (double)(texWidth * ratio);
+		double dHeight = (double)(texHeight * ratio);
+		int width = (int)Math.Ceiling (dWidth);
+		int height = (int)Math.Ceiling (dHeight);
+
+		TextureScale.Bilinear (texture, width, height);
+		return Sprite.Create (
+			texture, 
+			new Rect (0, 0, width, height), 
+			new Vector2 (0.5f, 0.5f)
+		);
 	}
 }
