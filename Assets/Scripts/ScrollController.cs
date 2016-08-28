@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Events;
 using System;
 using System.Collections;
-using UnityEngine.UI;
 
 public class ScrollController : MonoBehaviour {
 
@@ -25,10 +26,12 @@ public class ScrollController : MonoBehaviour {
 		var itemText = item.GetComponentInChildren<Text>();
 		itemText.text = text;
 
-		var itemImage = item.GetComponentInChildren<Image>();
-		itemImage.sprite = reseizeTexture(texture);
+		var itemImage = item.GetComponentsInChildren<Image>();
+		itemImage[1].sprite = reseizeTexture(texture);
 
-		// TODO: URLもやる
+		var itemButton = item.GetComponentInChildren<Button>();
+		UnityAction onClickAction = () => Application.OpenURL(articleUrl);
+		itemButton.onClick.AddListener(onClickAction);
 	}
 
 	Sprite reseizeTexture(Texture2D texture) {
