@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityChan;
 using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using LitJson;
 using System.Linq;
+using UnityChan;
+using LitJson;
 
 public class MainController : MonoBehaviour
 {
