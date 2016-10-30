@@ -168,9 +168,7 @@ public class MainController : MonoBehaviour
 				// 記事タイトルの表示
 				if (infoTitle != null) {
 					infoTitle.text = article.title;
-
 					infoTime.text = article.timeString;
-
 					uiController.currentUrl = article.link;
 				}
 			
@@ -208,7 +206,7 @@ public class MainController : MonoBehaviour
 			audioSource.clip = www.GetAudioClip(false, true, AudioType.MPEG);
 			audioSource.Play();
 			// 音声の時間を保存しておく
-			maxAudioTime = www.GetAudioClip(false, true, AudioType.MPEG).length;
+			maxAudioTime = audioSource.clip.length;
 			audioTime = maxAudioTime;
 		}
 	}
