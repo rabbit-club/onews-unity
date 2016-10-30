@@ -13,7 +13,7 @@ public class ScrollController : MonoBehaviour {
 	double displayWidth = 200;
 	double displayHeight = 150;
 
-	public void setItem(int number, string text, Texture2D texture, string articleUrl) 
+	public void setItem(int number, string title, Int32 time, Texture2D texture, string articleUrl) 
 	{
 		var item = GameObject.Instantiate(prefab) as RectTransform;
 		item.SetParent(transform, true);
@@ -23,8 +23,11 @@ public class ScrollController : MonoBehaviour {
 		itemPosition.y = -456 - number * 200;
 		item.transform.localPosition = itemPosition;
 
-		var itemText = item.GetComponentInChildren<Text>();
-		itemText.text = text;
+		var itemText = item.GetComponentsInChildren<Text>();
+		itemText[0].text = title;
+
+		var localDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(time).ToLocalTime();
+		itemText[1].text = localDate.ToString("yyyy/MM/dd HH:mm:ss");
 
 		var itemImage = item.GetComponentsInChildren<Image>();
 		itemImage[1].sprite = reseizeTexture(texture);

@@ -20,7 +20,8 @@ public class MainController : MonoBehaviour
 	private float maxAudioTime;
 	private float audioTime;
 	private GameObject shortDescription;
-	private GameObject title;
+	private Text infoTitle;
+	private Text infoTime;
 	private GameObject startTime;
 	private GameObject endTime;
 	private GameObject circle;
@@ -51,7 +52,8 @@ public class MainController : MonoBehaviour
 		maxAudioTime = 0.0f;
 		audioSource = GetComponent<AudioSource> ();
 		shortDescription = GameObject.Find ("Canvas/Footer/subtitles/Text");
-		title = GameObject.Find ("Content/Info/Text");
+		infoTitle = GameObject.Find ("Content/Info/Title").GetComponent<Text> ();
+		infoTime = GameObject.Find ("Content/Info/Time").GetComponent<Text> ();
 		startTime = GameObject.Find ("Canvas/Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
@@ -129,7 +131,7 @@ public class MainController : MonoBehaviour
 				Texture2D texture = wwwImage.texture;
 				article.texture = texture;
 
-				scrollController.setItem (itemNumber, article.title, texture, article.link);
+				scrollController.setItem (itemNumber, article.title, article.time, texture, article.link);
 				itemNumber++;
 			}
 
@@ -155,8 +157,12 @@ public class MainController : MonoBehaviour
 				}
 			
 				// 記事タイトルの表示
-				if (title != null) {
-					title.GetComponent<Text> ().text = article.title;
+				if (infoTitle != null) {
+					infoTitle.text = article.title;
+
+					var localDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(article.time).ToLocalTime();
+					infoTime.text = localDate.ToString("yyyy/MM/dd HH:mm:ss");
+
 					uiController.currentUrl = article.link;
 				}
 			
@@ -253,5 +259,6 @@ public class MainController : MonoBehaviour
 		public string image;
 		public string voice;
 		public Texture2D texture;
+		public Int32 time;
 	}
 }
