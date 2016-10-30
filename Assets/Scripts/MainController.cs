@@ -79,9 +79,10 @@ public class MainController : MonoBehaviour
 		// 新しい順に並び替え
 		var articlesUrlListToday = new Dictionary<string, string>();
 		var articlesUrlListYesterday = new Dictionary<string, string>();
-		int now = Int32.Parse (DateTime.Now.ToString ("HHmm"));
+		DateTime now = DateTime.Now;
+		Int32 nowInt = Int32.Parse (now.ToString ("HHmm"));
 		foreach (var key in articlesUrlList.Keys) {
-			if (Int32.Parse (key) >= now) {
+			if (Int32.Parse (key) >= nowInt) {
 				articlesUrlListYesterday.Add (key, articlesUrlList [key].ToString ());
 			} else {
 				articlesUrlListToday.Add (key, articlesUrlList [key].ToString ());
@@ -103,6 +104,14 @@ public class MainController : MonoBehaviour
 			ArticleData[] articles = JsonMapper.ToObject<ArticleData[]> (wwwArticles.text);
 
 			foreach (var article in articles) {
+				DateTime articleDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(article.time).ToLocalTime();
+
+				// 更新に失敗した古い記事は飛ばす
+				if (articleDateTime < now.AddDays(-1)) {
+					continue;
+				}
+
+				article.timeString = articleDateTime.ToString("yyyy/MM/dd HH:mm:ss");
 				articlesHunk.Add (article);
 			}
 
@@ -131,7 +140,7 @@ public class MainController : MonoBehaviour
 				Texture2D texture = wwwImage.texture;
 				article.texture = texture;
 
-				scrollController.setItem (itemNumber, article.title, article.time, texture, article.link);
+				scrollController.setItem (itemNumber, article.title, article.timeString, texture, article.link);
 				itemNumber++;
 			}
 
@@ -160,8 +169,7 @@ public class MainController : MonoBehaviour
 				if (infoTitle != null) {
 					infoTitle.text = article.title;
 
-					var localDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(article.time).ToLocalTime();
-					infoTime.text = localDate.ToString("yyyy/MM/dd HH:mm:ss");
+					infoTime.text = article.timeString;
 
 					uiController.currentUrl = article.link;
 				}
@@ -253,12 +261,13 @@ public class MainController : MonoBehaviour
 	[System.Serializable]
 	public class ArticleData
 	{
-		public string link;
-		public string title;
-		public string description;
-		public string image;
-		public string voice;
+		public String link;
+		public String title;
+		public String description;
+		public String image;
+		public String voice;
 		public Texture2D texture;
 		public Int32 time;
+		public String timeString;
 	}
 }
