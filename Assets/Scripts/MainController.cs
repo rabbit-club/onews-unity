@@ -73,11 +73,23 @@ public class MainController : MonoBehaviour
 		WWW wwwArticlesUrlList = new WWW (articlesUrlListURL);
 		yield return wwwArticlesUrlList;
 		LitJson.JsonData articlesUrlList = JsonMapper.ToObject(wwwArticlesUrlList.text);
-		// TODO: 現在時刻から近い順に並び替え
+
+		// 新しい順に並び替え
+		var articlesUrlListToday = new Dictionary<string, string>();
+		var articlesUrlListYesterday = new Dictionary<string, string>();
+		int now = Int32.Parse (DateTime.Now.ToString ("HHmm"));
+		foreach (var key in articlesUrlList.Keys) {
+			if (Int32.Parse (key) >= now) {
+				articlesUrlListYesterday.Add (key, articlesUrlList [key].ToString ());
+			} else {
+				articlesUrlListToday.Add (key, articlesUrlList [key].ToString ());
+			}
+		}
+		var articlesUrlListSorted = articlesUrlListToday.Concat(articlesUrlListYesterday).ToDictionary(x => x.Key, x => x.Value);
 
 		List<ArticleData> articlesHunk = new List<ArticleData>();
 
-		foreach (var key in articlesUrlList.Keys) {
+		foreach (var key in articlesUrlListSorted.Keys) {
 			string articlesUrl = Convert.ToString(articlesUrlList[key]);
 			if (String.IsNullOrEmpty(articlesUrl)) {
 				continue;
