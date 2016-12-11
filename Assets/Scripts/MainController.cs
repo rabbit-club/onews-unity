@@ -58,7 +58,9 @@ public class MainController : MonoBehaviour
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
 
-		ScrollController scrollController = GameObject.Find ("Viewport/Content").GetComponent<ScrollController> ();
+		GameObject scrollContent = GameObject.Find ("Viewport/Content");
+		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
+		RectTransform scrollContentTransform = scrollContent.GetComponent<RectTransform> ();
 
 		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
 
@@ -125,6 +127,11 @@ public class MainController : MonoBehaviour
 			foreach (GameObject item in oldListItems) {
 				Destroy (item);
 			}
+
+			// リストの長さを合わせる
+			scrollContentTransform.localPosition = new Vector2 (0, 0);
+			Vector2 scrollContentSize = scrollContentTransform.sizeDelta;
+			scrollContentTransform.sizeDelta = new Vector2 (scrollContentSize.x, articlesHunk.Count * 200.0f);
 
 			// リストのitem生成
 			// TODO: 切り替わるタイミングが早いため修正
