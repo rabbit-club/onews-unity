@@ -20,7 +20,7 @@ public class ScrollController : MonoBehaviour {
 
 		Vector2 itemPosition = item.transform.localPosition;
 		itemPosition.x = 532;
-		itemPosition.y = -456 - number * 200;
+		itemPosition.y = -250 - number * 200;
 		item.transform.localPosition = itemPosition;
 
 		var itemText = item.GetComponentsInChildren<Text>();

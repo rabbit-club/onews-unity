@@ -52,8 +52,8 @@ public class MainController : MonoBehaviour
 		maxAudioTime = 0.0f;
 		audioSource = GetComponent<AudioSource> ();
 		shortDescription = GameObject.Find ("Canvas/Footer/subtitles/Text");
-		infoTitle = GameObject.Find ("Content/Info/Title").GetComponent<Text> ();
-		infoTime = GameObject.Find ("Content/Info/Time").GetComponent<Text> ();
+		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
+		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
 		startTime = GameObject.Find ("Canvas/Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
