@@ -238,7 +238,7 @@ public class MainController : MonoBehaviour
 		double texHeight = texture.height;
 		double ratio = 1;
 
-		// 表示領域の比率よりも縦長か横長か
+		// ディスプレイの比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
 		}  else {

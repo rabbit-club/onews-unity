@@ -9,7 +9,7 @@ public class ScrollController : MonoBehaviour {
 	[SerializeField]
 	RectTransform prefab = null;
 
-	// ディスプレイサイズ
+	// リスト画像の枠の大きさ
 	double displayWidth = 200;
 	double displayHeight = 150;
 
@@ -45,13 +45,13 @@ public class ScrollController : MonoBehaviour {
 		itemButton.onClick.AddListener(onClickAction);
 	}
 
-	// 画像がディスプレイに内接する最大サイズを取得
+	// 画像が枠に内接する最大サイズを取得
 	int [] reseizeTexture(Texture2D texture) {
 		double texWidth = texture.width;
 		double texHeight = texture.height;
 		double ratio = 1;
 
-		// 表示領域の比率よりも縦長か横長か
+		// 枠の比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
 		}  else {
