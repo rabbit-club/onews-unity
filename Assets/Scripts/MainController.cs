@@ -151,9 +151,7 @@ public class MainController : MonoBehaviour
 			}
 			foreach (var article in articlesHunk) {
 				// 音声の取得と再生
-				yield return new WaitForSeconds (audioTime);
-				StartCoroutine (download (article.voice));
-				yield return new WaitForSeconds (1.0f);
+				yield return StartCoroutine (download (article.voice));
 
 				// 画像を表示
 				DisplaySprite.sprite = reseizeTexture(article.texture);
@@ -181,6 +179,8 @@ public class MainController : MonoBehaviour
 				// 音声時間maxの表示
 				TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
 				endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
+
+				yield return new WaitForSeconds (audioTime);
 			}
 
 			articlesHunk = new List<ArticleData>();
@@ -193,7 +193,7 @@ public class MainController : MonoBehaviour
 		WWW www = new WWW (filePathUrl);
 
 		while (!www.isDone) { // ダウンロードの進捗を表示
-			print (Mathf.CeilToInt (www.progress * 100));
+//			print (Mathf.CeilToInt (www.progress * 100));
 			yield return null;
 		}
 
