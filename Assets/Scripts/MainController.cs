@@ -52,13 +52,15 @@ public class MainController : MonoBehaviour
 		maxAudioTime = 0.0f;
 		audioSource = GetComponent<AudioSource> ();
 		shortDescription = GameObject.Find ("Canvas/Footer/subtitles/Text");
-		infoTitle = GameObject.Find ("Content/Info/Title").GetComponent<Text> ();
-		infoTime = GameObject.Find ("Content/Info/Time").GetComponent<Text> ();
+		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
+		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
 		startTime = GameObject.Find ("Canvas/Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
 		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
 
-		ScrollController scrollController = GameObject.Find ("Viewport/Content").GetComponent<ScrollController> ();
+		GameObject scrollContent = GameObject.Find ("Viewport/Content");
+		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
+		RectTransform scrollContentTransform = scrollContent.GetComponent<RectTransform> ();
 
 		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
 
@@ -125,6 +127,11 @@ public class MainController : MonoBehaviour
 			foreach (GameObject item in oldListItems) {
 				Destroy (item);
 			}
+
+			// リストの長さを合わせる
+			scrollContentTransform.localPosition = new Vector2 (0, 0);
+			Vector2 scrollContentSize = scrollContentTransform.sizeDelta;
+			scrollContentTransform.sizeDelta = new Vector2 (scrollContentSize.x, articlesHunk.Count * 200.0f);
 
 			// リストのitem生成
 			// TODO: 切り替わるタイミングが早いため修正
@@ -231,7 +238,7 @@ public class MainController : MonoBehaviour
 		double texHeight = texture.height;
 		double ratio = 1;
 
-		// 表示領域の比率よりも縦長か横長か
+		// ディスプレイの比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
 		}  else {
