@@ -153,9 +153,9 @@ public class MainController : MonoBehaviour
 
 			// ローカルキャッシュを作成する
 //			createLocalCache(articles);
-			if(isOffLine) {
-				return false;
-			}
+//			if(isOffLine) {
+//				return false;
+//			}
 			foreach (var article in articlesHunk) {
 				// 音声の取得と再生
 				yield return StartCoroutine (download (article.voice));
