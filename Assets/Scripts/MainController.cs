@@ -11,32 +11,26 @@ using LitJson;
 
 public class MainController : MonoBehaviour
 {
-	public GameObject Display;
-	SpriteRenderer DisplaySprite;
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
-
-	public string filePath = "";
-	private AudioSource audioSource;
-	private float maxAudioTime;
-	private float audioTime;
-	private GameObject shortDescription;
-	private Text infoTitle;
-	private Text infoTime;
-	private GameObject startTime;
-	private GameObject endTime;
-	private GameObject circle;
-	public FaceUpdate faceUpdate;
-	GameObject UnityChan;
-	UnityChanTouch unityChanTouch;
-	bool isOffLine = false;
-
-	UIController uiController;
+	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
 	double displayWidth = 400;
 	double displayHeight = 300;
 
-	int articleHunkCount = 6;
+	GameObject UnityChan;
+	UnityChanTouch unityChanTouch;
+	public FaceUpdate faceUpdate;
+	public GameObject Display;
+
+	GameObject shortDescription;
+	GameObject startTime;
+
+	AudioSource audioSource;
+	float audioTime;
+	float maxAudioTime;
+
+//	bool isOffLine = false;
 
 	public void Movie ()
 	{
@@ -47,22 +41,26 @@ public class MainController : MonoBehaviour
 	{
 		UnityChan = GameObject.Find ("unitychan");
 		unityChanTouch = UnityChan.GetComponent<UnityChanTouch>();
-		DisplaySprite = Display.GetComponent<SpriteRenderer> ();
-		audioTime = 0.0f;
-		maxAudioTime = 0.0f;
-		audioSource = GetComponent<AudioSource> ();
-		shortDescription = GameObject.Find ("Canvas/Footer/subtitles/Text");
-		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
-		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
-		startTime = GameObject.Find ("Canvas/Footer/Seekbar/Time");
-		endTime = GameObject.Find ("Canvas/Footer/Seekbar/EndTime");
-		circle = GameObject.Find ("Canvas/Footer/Seekbar/circle");
+		SpriteRenderer DisplaySprite = Display.GetComponent<SpriteRenderer> ();
+
+		shortDescription = GameObject.Find ("Footer/subtitles/Text");
+		Text infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
+		Text infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
+		GameObject infoSource = GameObject.Find ("Footer/Fixed View/Source");
+
+		startTime = GameObject.Find ("Footer/Seekbar/Time");
+		GameObject endTime = GameObject.Find ("Footer/Seekbar/EndTime");
+		GameObject circle = GameObject.Find ("Footer/Seekbar/circle");
 
 		GameObject scrollContent = GameObject.Find ("Viewport/Content");
 		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
 		RectTransform scrollContentTransform = scrollContent.GetComponent<RectTransform> ();
 
-		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
+		UIController uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
+
+		audioSource = GetComponent<AudioSource> ();
+		audioTime = 0.0f;
+		maxAudioTime = 0.0f;
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
@@ -207,7 +205,7 @@ public class MainController : MonoBehaviour
 		if (!string.IsNullOrEmpty (www.error)) { // ダウンロードでエラーが発生した
 			Debug.Log ("error:" + www.error);
 		} else { // ダウンロードが正常に完了した
-			filePath = Application.persistentDataPath + "/" + Path.GetFileName (www.url);
+			string filePath = Application.persistentDataPath + "/" + Path.GetFileName (www.url);
 			File.WriteAllBytes (filePath, www.bytes);
 			Debug.Log ("download file write success." + filePath);
 			audioSource.clip = www.GetAudioClip(false, true, AudioType.MPEG);
@@ -225,7 +223,11 @@ public class MainController : MonoBehaviour
 			unityChanTouch.useLip = true;
 
 			audioTime -= Time.deltaTime;
-			shortDescription.transform.localPosition = new Vector3 (shortDescription.transform.localPosition.x - (Time.deltaTime * 240.0f), shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
+			shortDescription.transform.localPosition = new Vector3 (
+				shortDescription.transform.localPosition.x - (Time.deltaTime * 240.0f), 
+				shortDescription.transform.localPosition.y, 
+				shortDescription.transform.localPosition.z
+			);
 			float nowAudioTime = maxAudioTime - audioTime;
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
 			startTime.GetComponent<Text>().text = nts.Seconds.ToString();
