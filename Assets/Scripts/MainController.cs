@@ -12,6 +12,7 @@ using LitJson;
 public class MainController : MonoBehaviour
 {
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
+	string emptyImage = "Assets/Images/main_display.png";
 	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
@@ -137,15 +138,15 @@ public class MainController : MonoBehaviour
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
 				if (article.image == "") {
-					article.image = "http://i.yimg.jp/images/jpnews/cre/common/all/images/fbico_ogp_1200x630.png";
+					// 画像なし画像
+					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
+				} else {
+					WWW wwwImage = new WWW (article.image);
+					yield return wwwImage;
+					article.texture = wwwImage.texture;
 				}
-				WWW wwwImage = new WWW (article.image);
-				yield return wwwImage;
 
-				Texture2D texture = wwwImage.texture;
-				article.texture = texture;
-
-				scrollController.setItem (itemNumber, article.title, article.timeString, texture, article.link);
+				scrollController.setItem (itemNumber, article.title, article.timeString, article.texture, article.link);
 				itemNumber++;
 			}
 
@@ -269,6 +270,25 @@ public class MainController : MonoBehaviour
 	void createLocalCache(ArticleData[] articles) {
 		string json = LitJson.JsonMapper.ToJson(articles);
 		PlayerPrefs.SetString("ONEWS_ARTICLES", json);
+	}
+
+	byte[] ReadPngFile(string path){
+		FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+		BinaryReader bin = new BinaryReader(fileStream);
+		byte[] values = bin.ReadBytes((int)bin.BaseStream.Length);
+
+		bin.Close();
+
+		return values;
+	}
+
+	Texture2D ReadTexture(string path, int width, int height){
+		byte[] readBinary = ReadPngFile(path);
+
+		Texture2D texture = new Texture2D(width, height);
+		texture.LoadImage(readBinary);
+
+		return texture;
 	}
 
 	[System.Serializable]
