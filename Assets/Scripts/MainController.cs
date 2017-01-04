@@ -46,7 +46,7 @@ public class MainController : MonoBehaviour
 		shortDescription = GameObject.Find ("Footer/subtitles/Text");
 		Text infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
 		Text infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
-		GameObject infoSource = GameObject.Find ("Footer/Fixed View/Source");
+		Image infoSource = GameObject.Find ("Footer/Fixed View/Source").GetComponent<Image> ();
 
 		startTime = GameObject.Find ("Footer/Seekbar/Time");
 		GameObject endTime = GameObject.Find ("Footer/Seekbar/EndTime");
@@ -173,6 +173,12 @@ public class MainController : MonoBehaviour
 					infoTitle.text = article.title;
 					infoTime.text = article.timeString;
 					uiController.currentUrl = article.link;
+
+					if (infoSource.color.a == 0) {
+						var infoSourceColor = infoSource.color;
+						infoSourceColor.a = 255;
+						infoSource.color = infoSourceColor;
+					}
 				}
 			
 				// シークバーを動かす
