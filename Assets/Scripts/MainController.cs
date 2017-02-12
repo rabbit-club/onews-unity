@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Advertisements;
 using System;
 using System.IO;
 using System.Collections;
@@ -19,17 +20,27 @@ public class MainController : MonoBehaviour
 	double displayWidth = 400;
 	double displayHeight = 300;
 
+	bool adFinished = true;
+
 	GameObject UnityChan;
 	UnityChanTouch unityChanTouch;
 	public FaceUpdate faceUpdate;
 	public GameObject Display;
+	SpriteRenderer DisplaySprite;
 
 	GameObject shortDescription;
+	Text infoTitle;
+	Text infoTime;
+	Image infoSource;
+
 	GameObject startTime;
+	GameObject endTime;
+	GameObject circle;
 
 	AudioSource audioSource;
 	float audioTime;
 	float maxAudioTime;
+	UIController uiController;
 
 //	bool isOffLine = false;
 
@@ -42,22 +53,22 @@ public class MainController : MonoBehaviour
 	{
 		UnityChan = GameObject.Find ("unitychan");
 		unityChanTouch = UnityChan.GetComponent<UnityChanTouch>();
-		SpriteRenderer DisplaySprite = Display.GetComponent<SpriteRenderer> ();
+		DisplaySprite = Display.GetComponent<SpriteRenderer> ();
 
 		shortDescription = GameObject.Find ("Footer/subtitles/Text");
-		Text infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
-		Text infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
-		Image infoSource = GameObject.Find ("Footer/Fixed View/Source").GetComponent<Image> ();
+		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
+		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
+		infoSource = GameObject.Find ("Footer/Fixed View/Source").GetComponent<Image> ();
 
 		startTime = GameObject.Find ("Footer/Seekbar/Time");
-		GameObject endTime = GameObject.Find ("Footer/Seekbar/EndTime");
-		GameObject circle = GameObject.Find ("Footer/Seekbar/circle");
+		endTime = GameObject.Find ("Footer/Seekbar/EndTime");
+		circle = GameObject.Find ("Footer/Seekbar/circle");
 
 		GameObject scrollContent = GameObject.Find ("Viewport/Content");
 		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
 		RectTransform scrollContentTransform = scrollContent.GetComponent<RectTransform> ();
 
-		UIController uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
+		uiController = GameObject.Find ("UICamera").GetComponent<UIController>();
 
 		audioSource = GetComponent<AudioSource> ();
 		audioTime = 0.0f;
@@ -155,49 +166,67 @@ public class MainController : MonoBehaviour
 //			if(isOffLine) {
 //				return false;
 //			}
-			foreach (var article in articlesHunk) {
-				// 音声の取得と再生
-				yield return StartCoroutine (download (article.voice));
 
-				// 画像を表示
-				DisplaySprite.sprite = reseizeTexture(article.texture);
-			
-				// 要約記事テキストの表示
-				if (shortDescription != null) {
-					// 位置を初期化
-					shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
-					shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
-				}
-			
-				// 記事タイトルの表示
-				if (infoTitle != null) {
-					infoTitle.text = article.title;
-					infoTime.text = article.timeString;
-					uiController.currentUrl = article.link;
-
-					if (infoSource.color.a == 0) {
-						var infoSourceColor = infoSource.color;
-						infoSourceColor.a = 255;
-						infoSource.color = infoSourceColor;
-					}
-				}
-			
-				// シークバーを動かす
-				if (circle != null) {
-					circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
-					iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
-				}
-			
-				// 音声時間maxの表示
-				TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
-				endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
-
-				yield return new WaitForSeconds (audioTime);
+			if (!adFinished) {
+				// TODO: 広告入りのセリフ
+				// 広告再生
+				yield return StartCoroutine (showAd());
 			}
+
+			// 広告が終わるまで待つ
+			while (!adFinished) {
+				yield return new WaitForSeconds (0.5f);
+			}
+			adFinished = false;
+
+			// ニュースを読む
+			yield return StartCoroutine (readNews(articlesHunk));
 
 			articlesHunk = new List<ArticleData>();
 		}
-			
+	}
+
+	IEnumerator readNews (List<ArticleData> articlesHunk)
+	{
+		foreach (var article in articlesHunk) {
+			// 音声の取得と再生
+			yield return StartCoroutine (download (article.voice));
+
+			// 画像を表示
+			DisplaySprite.sprite = reseizeTexture(article.texture);
+
+			// 要約記事テキストの表示
+			if (shortDescription != null) {
+				// 位置を初期化
+				shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
+				shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
+			}
+
+			// 記事タイトルの表示
+			if (infoTitle != null) {
+				infoTitle.text = article.title;
+				infoTime.text = article.timeString;
+				uiController.currentUrl = article.link;
+
+				if (infoSource.color.a == 0) {
+					var infoSourceColor = infoSource.color;
+					infoSourceColor.a = 255;
+					infoSource.color = infoSourceColor;
+				}
+			}
+
+			// シークバーを動かす
+			if (circle != null) {
+				circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
+				iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
+			}
+
+			// 音声時間maxの表示
+			TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
+			endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
+
+			yield return new WaitForSeconds (audioTime);
+		}
 	}
 
 	IEnumerator download (string filePathUrl)
@@ -221,6 +250,26 @@ public class MainController : MonoBehaviour
 			maxAudioTime = audioSource.clip.length;
 			audioTime = maxAudioTime;
 		}
+	}
+
+	IEnumerator showAd ()
+	{
+		if (Advertisement.IsReady()) {
+			Advertisement.Show(null, new ShowOptions {
+				resultCallback = result => {
+					switch (result) {
+						case ShowResult.Finished:
+						case ShowResult.Skipped:
+						case ShowResult.Failed:
+						default:
+							adFinished = true;
+							break;
+					}
+				}
+			});
+		}
+
+		yield return null; 
 	}
 
 	void Update ()
