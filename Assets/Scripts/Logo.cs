@@ -18,9 +18,9 @@ public class Logo : MonoBehaviour, IPointerClickHandler {
 //		UnityChanAnim = UnityChan.GetComponent<Animator>();
 //		UnityChanAnim.SetBool ("Next", true);
 
-		MainController = GameObject.Find("Camera").GetComponent<MainController>();;
-		MainController.Movie();
-		this.gameObject.SetActive(false);
+//		MainController = GameObject.Find("Camera").GetComponent<MainController>();;
+//		MainController.Movie();
+//		this.gameObject.SetActive(false);
 	}
 
 	public void Reset() {

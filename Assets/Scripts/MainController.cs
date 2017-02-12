@@ -45,7 +45,8 @@ public class MainController : MonoBehaviour
 
 //	bool isOffLine = false;
 
-	public void Movie ()
+//	public void Movie ()
+	void Start()
 	{
 		StartCoroutine (MovieStart ());
 	}
