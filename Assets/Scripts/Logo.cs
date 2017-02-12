@@ -11,9 +11,6 @@ public class Logo : MonoBehaviour, IPointerClickHandler {
 
 	public GameObject Circle;
 
-	void Start() {
-	}
-
 	public void OnPointerClick (PointerEventData eventData){
 //		iTween.MoveAdd( Circle, new Vector3(588, 0, 0), 180f );
 

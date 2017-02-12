@@ -38,6 +38,7 @@ public class MainController : MonoBehaviour
 	GameObject circle;
 
 	AudioSource audioSource;
+	AudioSource bgmSource;
 	float audioTime;
 	float maxAudioTime;
 	UIController uiController;
@@ -73,6 +74,8 @@ public class MainController : MonoBehaviour
 		audioSource = GetComponent<AudioSource> ();
 		audioTime = 0.0f;
 		maxAudioTime = 0.0f;
+
+		bgmSource = GameObject.Find ("BGM").GetComponent<AudioSource>();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
@@ -314,6 +317,16 @@ public class MainController : MonoBehaviour
 			new Rect (0, 0, width, height), 
 			new Vector2 (0.5f, 0.5f)
 		);
+	}
+
+	public void mute() {
+		if (audioSource.volume == 0) {
+			audioSource.volume = 1;
+			bgmSource.volume = 1;
+		} else {
+			audioSource.volume = 0;
+			bgmSource.volume = 0;
+		}
 	}
 
 	void createLocalCache(ArticleData[] articles) {
