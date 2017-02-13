@@ -11,9 +11,6 @@ public class Logo : MonoBehaviour, IPointerClickHandler {
 
 	public GameObject Circle;
 
-	void Start() {
-	}
-
 	public void OnPointerClick (PointerEventData eventData){
 //		iTween.MoveAdd( Circle, new Vector3(588, 0, 0), 180f );
 
@@ -21,9 +18,9 @@ public class Logo : MonoBehaviour, IPointerClickHandler {
 //		UnityChanAnim = UnityChan.GetComponent<Animator>();
 //		UnityChanAnim.SetBool ("Next", true);
 
-		MainController = GameObject.Find("Camera").GetComponent<MainController>();;
-		MainController.Movie();
-		this.gameObject.SetActive(false);
+//		MainController = GameObject.Find("Camera").GetComponent<MainController>();;
+//		MainController.Movie();
+//		this.gameObject.SetActive(false);
 	}
 
 	public void Reset() {
