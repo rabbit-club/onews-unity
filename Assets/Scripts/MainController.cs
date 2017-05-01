@@ -13,7 +13,7 @@ using LitJson;
 public class MainController : MonoBehaviour
 {
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
-	string emptyImage = "Assets/Images/main_display.png";
+	string emptyImage = "Assets/Images/main_empty.png";
 	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
