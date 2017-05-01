@@ -11,8 +11,13 @@ public class UIController : MonoBehaviour {
 		}
 	}
 
-	public void mute() {
+	public void volumeOn() {
 		MainController = GameObject.Find("Camera").GetComponent<MainController>();
-		MainController.mute();
+		MainController.volumeOn();
+	}
+
+	public void volumeOff() {
+		MainController = GameObject.Find("Camera").GetComponent<MainController>();
+		MainController.volumeOff();
 	}
 }

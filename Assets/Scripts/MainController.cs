@@ -320,14 +320,14 @@ public class MainController : MonoBehaviour
 		);
 	}
 
-	public void mute() {
-		if (audioSource.volume == 0) {
-			audioSource.volume = 1;
-			bgmSource.volume = 1;
-		} else {
-			audioSource.volume = 0;
-			bgmSource.volume = 0;
-		}
+	public void volumeOn() {
+		audioSource.volume = 1;
+		bgmSource.volume = 1;
+	}
+
+	public void volumeOff() {
+		audioSource.volume = 0;
+		bgmSource.volume = 0;
 	}
 
 	void createLocalCache(ArticleData[] articles) {
