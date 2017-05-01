@@ -300,8 +300,10 @@ public class MainController : MonoBehaviour
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
 			var seconds = nts.Seconds;
 			if (seconds >= 0) {
-				startTime.GetComponent<Text>().text = "0:" + seconds.ToString().PadLeft(2, '0');
+				startTime.GetComponent<Text> ().text = "0:" + seconds.ToString ().PadLeft (2, '0');
 			}
+		} else {
+			unityChanTouch.useLip = false;
 		}
 	}
 
