@@ -54,7 +54,7 @@ public class ScrollController : MonoBehaviour {
 		// 枠の比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
-		}  else {
+		} else {
 			ratio = displayHeight / texHeight;
 		}
 

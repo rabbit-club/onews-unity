@@ -17,8 +17,8 @@ public class MainController : MonoBehaviour
 	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
-	double displayWidth = 400;
-	double displayHeight = 300;
+	double displayWidth = 1280;
+	double displayHeight = 960;
 
 	bool adFinished = true;
 
@@ -152,13 +152,17 @@ public class MainController : MonoBehaviour
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
-				if (article.image == "") {
-					// 画像なし画像
-					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
-				} else {
+				if (article.twitterImage != "") {
+					WWW wwwImage = new WWW (article.twitterImage);
+					yield return wwwImage;
+					article.texture = wwwImage.texture;
+				} else if (article.image != "") {
 					WWW wwwImage = new WWW (article.image);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
+				} else {
+					// 画像なし画像
+					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
 				}
 
 				scrollController.setItem (itemNumber, article.title, article.timeString, article.texture, article.link);
@@ -304,7 +308,7 @@ public class MainController : MonoBehaviour
 		// ディスプレイの比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
-		}  else {
+		} else {
 			ratio = displayHeight / texHeight;
 		}
 
@@ -362,6 +366,8 @@ public class MainController : MonoBehaviour
 		public String title;
 		public String description;
 		public String image;
+		public String itemImage;
+		public String twitterImage;
 		public String voice;
 		public Texture2D texture;
 		public Int32 time;
