@@ -32,6 +32,7 @@ public class MainController : MonoBehaviour
 	Text infoTitle;
 	Text infoTime;
 	Image infoSource;
+	Text infoSourceText;
 
 	GameObject startTime;
 	GameObject endTime;
@@ -61,6 +62,7 @@ public class MainController : MonoBehaviour
 		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
 		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
 		infoSource = GameObject.Find ("Footer/Fixed View/Source").GetComponent<Image> ();
+		infoSourceText = GameObject.Find ("Footer/Fixed View/Source/Text").GetComponent<Text> ();
 
 		startTime = GameObject.Find ("Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Footer/Seekbar/EndTime");
@@ -220,6 +222,10 @@ public class MainController : MonoBehaviour
 					var infoSourceColor = infoSource.color;
 					infoSourceColor.a = 255;
 					infoSource.color = infoSourceColor;
+
+					var infoSourceTextColor = infoSourceText.color;
+					infoSourceTextColor.a = 255;
+					infoSourceText.color = infoSourceTextColor;
 				}
 			}
 
