@@ -35,7 +35,7 @@ public class MainController : MonoBehaviour
 
 	GameObject startTime;
 	GameObject endTime;
-	GameObject circle;
+	GameObject seekedBar;
 
 	AudioSource audioSource;
 	AudioSource bgmSource;
@@ -64,7 +64,7 @@ public class MainController : MonoBehaviour
 
 		startTime = GameObject.Find ("Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Footer/Seekbar/EndTime");
-		circle = GameObject.Find ("Footer/Seekbar/circle");
+		seekedBar = GameObject.Find ("Footer/Seekbar/SeekedBar");
 
 		GameObject scrollContent = GameObject.Find ("Viewport/Content");
 		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
@@ -220,14 +220,12 @@ public class MainController : MonoBehaviour
 			}
 
 			// シークバーを動かす
-			if (circle != null) {
-				circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
-				iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
-			}
+			seekedBar.transform.position = new Vector3 (-1080, seekedBar.transform.position.y, seekedBar.transform.position.z);
+			iTween.MoveTo (seekedBar, iTween.Hash ("position", new Vector3 (0, seekedBar.transform.position.y, seekedBar.transform.position.z), "time", maxAudioTime, "easeType", "linear"));
 
 			// 音声時間maxの表示
 			TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
-			endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
+			endTime.GetComponent<Text> ().text = "0:" + maxTs.Seconds.ToString().PadLeft(2, '0');
 
 			yield return new WaitForSeconds (audioTime);
 		}
@@ -290,7 +288,10 @@ public class MainController : MonoBehaviour
 			);
 			float nowAudioTime = maxAudioTime - audioTime;
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
-			startTime.GetComponent<Text>().text = nts.Seconds.ToString();
+			var seconds = nts.Seconds;
+			if (seconds >= 0) {
+				startTime.GetComponent<Text>().text = "0:" + seconds.ToString().PadLeft(2, '0');
+			}
 		}
 	}
 
