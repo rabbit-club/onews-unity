@@ -13,12 +13,12 @@ using LitJson;
 public class MainController : MonoBehaviour
 {
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
-	string emptyImage = "Assets/Images/main_display.png";
+	string emptyImage = "Assets/Images/main_empty.png";
 	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
-	double displayWidth = 400;
-	double displayHeight = 300;
+	double displayWidth = 1280;
+	double displayHeight = 960;
 
 	bool adFinished = true;
 
@@ -32,10 +32,11 @@ public class MainController : MonoBehaviour
 	Text infoTitle;
 	Text infoTime;
 	Image infoSource;
+	Text infoSourceText;
 
 	GameObject startTime;
 	GameObject endTime;
-	GameObject circle;
+	GameObject seekedBar;
 
 	AudioSource audioSource;
 	AudioSource bgmSource;
@@ -61,10 +62,11 @@ public class MainController : MonoBehaviour
 		infoTitle = GameObject.Find ("Footer/Fixed View/Title").GetComponent<Text> ();
 		infoTime = GameObject.Find ("Footer/Fixed View/Time").GetComponent<Text> ();
 		infoSource = GameObject.Find ("Footer/Fixed View/Source").GetComponent<Image> ();
+		infoSourceText = GameObject.Find ("Footer/Fixed View/Source/Text").GetComponent<Text> ();
 
 		startTime = GameObject.Find ("Footer/Seekbar/Time");
 		endTime = GameObject.Find ("Footer/Seekbar/EndTime");
-		circle = GameObject.Find ("Footer/Seekbar/circle");
+		seekedBar = GameObject.Find ("Footer/Seekbar/SeekedBar");
 
 		GameObject scrollContent = GameObject.Find ("Viewport/Content");
 		ScrollController scrollController = scrollContent.GetComponent<ScrollController> ();
@@ -152,13 +154,17 @@ public class MainController : MonoBehaviour
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
-				if (article.image == "") {
-					// 画像なし画像
-					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
-				} else {
+				if (article.twitterImage != "") {
+					WWW wwwImage = new WWW (article.twitterImage);
+					yield return wwwImage;
+					article.texture = wwwImage.texture;
+				} else if (article.image != "") {
 					WWW wwwImage = new WWW (article.image);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
+				} else {
+					// 画像なし画像
+					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
 				}
 
 				scrollController.setItem (itemNumber, article.title, article.timeString, article.texture, article.link);
@@ -216,18 +222,20 @@ public class MainController : MonoBehaviour
 					var infoSourceColor = infoSource.color;
 					infoSourceColor.a = 255;
 					infoSource.color = infoSourceColor;
+
+					var infoSourceTextColor = infoSourceText.color;
+					infoSourceTextColor.a = 255;
+					infoSourceText.color = infoSourceTextColor;
 				}
 			}
 
 			// シークバーを動かす
-			if (circle != null) {
-				circle.transform.position = new Vector3 (-204, circle.transform.position.y, circle.transform.position.z);
-				iTween.MoveTo (circle, iTween.Hash ("position", new Vector3 (373, circle.transform.position.y, 0), "time", maxAudioTime - 1, "easeType", "linear"));
-			}
+			seekedBar.transform.position = new Vector3 (-1080, seekedBar.transform.position.y, seekedBar.transform.position.z);
+			iTween.MoveTo (seekedBar, iTween.Hash ("position", new Vector3 (0, seekedBar.transform.position.y, seekedBar.transform.position.z), "time", maxAudioTime, "easeType", "linear"));
 
 			// 音声時間maxの表示
 			TimeSpan maxTs = TimeSpan.FromSeconds (maxAudioTime);
-			endTime.GetComponent<Text> ().text = maxTs.Seconds.ToString ();
+			endTime.GetComponent<Text> ().text = "0:" + maxTs.Seconds.ToString().PadLeft(2, '0');
 
 			yield return new WaitForSeconds (audioTime);
 		}
@@ -290,7 +298,12 @@ public class MainController : MonoBehaviour
 			);
 			float nowAudioTime = maxAudioTime - audioTime;
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
-			startTime.GetComponent<Text>().text = nts.Seconds.ToString();
+			var seconds = nts.Seconds;
+			if (seconds >= 0) {
+				startTime.GetComponent<Text> ().text = "0:" + seconds.ToString ().PadLeft (2, '0');
+			}
+		} else {
+			unityChanTouch.useLip = false;
 		}
 	}
 
@@ -303,7 +316,7 @@ public class MainController : MonoBehaviour
 		// ディスプレイの比率よりも縦長か横長か
 		if (texWidth / texHeight >= displayWidth / displayHeight) {
 			ratio = displayWidth / texWidth;
-		}  else {
+		} else {
 			ratio = displayHeight / texHeight;
 		}
 
@@ -320,14 +333,14 @@ public class MainController : MonoBehaviour
 		);
 	}
 
-	public void mute() {
-		if (audioSource.volume == 0) {
-			audioSource.volume = 1;
-			bgmSource.volume = 1;
-		} else {
-			audioSource.volume = 0;
-			bgmSource.volume = 0;
-		}
+	public void volumeOn() {
+		audioSource.volume = 1;
+		bgmSource.volume = 1;
+	}
+
+	public void volumeOff() {
+		audioSource.volume = 0;
+		bgmSource.volume = 0;
 	}
 
 	void createLocalCache(ArticleData[] articles) {
@@ -361,6 +374,8 @@ public class MainController : MonoBehaviour
 		public String title;
 		public String description;
 		public String image;
+		public String itemImage;
+		public String twitterImage;
 		public String voice;
 		public Texture2D texture;
 		public Int32 time;
