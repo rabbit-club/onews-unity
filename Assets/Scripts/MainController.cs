@@ -13,7 +13,7 @@ using LitJson;
 public class MainController : MonoBehaviour
 {
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
-	string emptyImage = "Assets/Images/main_empty.png";
+	string emptyImage = "Images/main_empty";
 	int articleHunkCount = 6;
 
 	// ディスプレイサイズ
@@ -180,7 +180,7 @@ public class MainController : MonoBehaviour
 					article.texture = wwwImage.texture;
 				} else {
 					// 画像なし画像
-					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
+					article.texture = Resources.Load (emptyImage) as Texture2D;
 				}
 
 				scrollController.setItem (itemNumber, article.title, article.timeString, article.texture, article.link);
@@ -372,15 +372,6 @@ public class MainController : MonoBehaviour
 		bin.Close();
 
 		return values;
-	}
-
-	Texture2D ReadTexture(string path, int width, int height){
-		byte[] readBinary = ReadPngFile(path);
-
-		Texture2D texture = new Texture2D(width, height);
-		texture.LoadImage(readBinary);
-
-		return texture;
 	}
 
 	[System.Serializable]
