@@ -40,6 +40,7 @@ public class MainController : MonoBehaviour
 
 	AudioSource audioSource;
 	AudioSource bgmSource;
+	AudioSource[] bgmSources;
 	float audioTime;
 	float maxAudioTime;
 	UIController uiController;
@@ -78,7 +79,23 @@ public class MainController : MonoBehaviour
 		audioTime = 0.0f;
 		maxAudioTime = 0.0f;
 
+		DateTime now = DateTime.Now;
+		int hour = now.Hour;
+		int timeZone;
+		if (hour >= 6 && hour < 12) {
+			// 朝
+			timeZone = 0;
+		} else if (hour >= 12 && hour < 18) {
+			// 昼
+			timeZone = 1;
+		} else {
+			// 夜
+			timeZone = 2;
+		}
+
 		bgmSource = GameObject.Find ("BGM").GetComponent<AudioSource>();
+		bgmSource.clip = Resources.Load("BGM/bgm_" + timeZone) as AudioClip;
+		bgmSource.Play();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
@@ -97,7 +114,6 @@ public class MainController : MonoBehaviour
 		// 新しい順に並び替え
 		var articlesUrlListToday = new Dictionary<string, string>();
 		var articlesUrlListYesterday = new Dictionary<string, string>();
-		DateTime now = DateTime.Now;
 		Int32 nowInt = Int32.Parse (now.ToString ("HHmm"));
 		foreach (var key in articlesUrlList.Keys) {
 			if (Int32.Parse (key) >= nowInt) {
