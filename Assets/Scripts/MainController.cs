@@ -81,30 +81,52 @@ public class MainController : MonoBehaviour
 
 		DateTime now = DateTime.Now;
 		int hour = now.Hour;
-		int timeZone;
+		int timeZoneBGM;
+		int timeZoneVoice;
 		if (hour >= 6 && hour < 12) {
 			// 朝
-			timeZone = 0;
+			timeZoneBGM = 1;
+			timeZoneVoice = 1;
 		} else if (hour >= 12 && hour < 18) {
 			// 昼
-			timeZone = 1;
-		} else {
+			timeZoneBGM = 2;
+			timeZoneVoice = 2;
+		} else if (hour >= 18 && hour < 24) {
 			// 夜
-			timeZone = 2;
+			timeZoneBGM = 2;
+			timeZoneVoice = 3;
+		} else {
+			// 深夜
+			timeZoneBGM = 3;
+			timeZoneVoice = 3;
 		}
 
 		bgmSource = GameObject.Find ("BGM").GetComponent<AudioSource>();
-		bgmSource.clip = Resources.Load("BGM/bgm_" + timeZone) as AudioClip;
+		bgmSource.clip = Resources.Load("BGM/bgm_" + timeZoneBGM) as AudioClip;
 		bgmSource.Play();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
 		yield return new WaitForSeconds(seStart.length);
 
-		AudioClip hello = Resources.Load("Voices/ohiru", typeof(AudioClip)) as AudioClip;
-		audioSource.PlayOneShot(hello);
-		audioTime += hello.length; // 挨拶音声の時間を初回のウェイトにする
-		audioTime += 0.5f;         // ワンテンポの間
+		AudioClip voiceA = Resources.Load("Voices/a_" + timeZoneVoice, typeof(AudioClip)) as AudioClip;
+		audioSource.PlayOneShot(voiceA);
+		audioTime += voiceA.length + 0.5f;
+
+		yield return new WaitForSeconds (audioTime);
+
+		int voiceType = UnityEngine.Random.Range (0, 4);
+		int voiceNumber;
+		if (voiceType == 0) {
+			voiceNumber = UnityEngine.Random.Range (0, 15);
+		} else {
+			voiceType = timeZoneVoice;
+			voiceNumber = UnityEngine.Random.Range (0, 5);
+		}
+
+		AudioClip voiceB = Resources.Load("Voices/b_" + voiceType + "_" + voiceNumber, typeof(AudioClip)) as AudioClip;
+		audioSource.PlayOneShot(voiceB);
+		audioTime += voiceB.length + 0.5f; // 挨拶音声の時間を初回のウェイトにする
 
 		// JSON List取得
 		WWW wwwArticlesUrlList = new WWW (articlesUrlListURL);
