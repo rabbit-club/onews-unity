@@ -216,7 +216,12 @@ public class MainController : MonoBehaviour
 //			}
 
 			if (!adFinished) {
-				// TODO: 広告入りのセリフ
+				int cmVoiceNumber = UnityEngine.Random.Range (0, 15);
+				AudioClip voiceC = Resources.Load("Voices/c_" + cmVoiceNumber, typeof(AudioClip)) as AudioClip;
+				audioSource.PlayOneShot(voiceC);
+				audioTime += voiceC.length + 0.5f;
+				yield return new WaitForSeconds (audioTime);
+
 				// 広告再生
 				yield return StartCoroutine (showAd());
 			}
