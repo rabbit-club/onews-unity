@@ -16,9 +16,15 @@ public class MainController : MonoBehaviour
 	string emptyImage = "Images/main_empty";
 	int articleHunkCount = 6;
 
-	// ディスプレイサイズ
+	// アプリ内ディスプレイサイズ
 	double displayWidth = 1280;
 	double displayHeight = 960;
+
+	// アプリ画面幅
+	float windowWidth = 1080.0f;
+
+	// 字幕フォント幅
+	float fontWidth = 40.0f;
 
 	bool adFinished = true;
 
@@ -251,8 +257,13 @@ public class MainController : MonoBehaviour
 			// 要約記事テキストの表示
 			if (shortDescription != null) {
 				// 位置を初期化
-				shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
-				shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
+				shortDescription.transform.localPosition = new Vector3 (windowWidth, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
+				String articleText = article.title + " " + article.description;
+				shortDescription.GetComponent<Text> ().text = articleText;
+
+				// テキストスクロール
+				float moveAmount = fontWidth * articleText.Length + windowWidth;
+				iTween.MoveAdd(shortDescription, iTween.Hash("x", -moveAmount, "easeType", "linear", "time", maxAudioTime));
 			}
 
 			// 記事タイトルの表示
@@ -273,7 +284,7 @@ public class MainController : MonoBehaviour
 			}
 
 			// シークバーを動かす
-			seekedBar.transform.position = new Vector3 (-1080, seekedBar.transform.position.y, seekedBar.transform.position.z);
+			seekedBar.transform.position = new Vector3 (-windowWidth, seekedBar.transform.position.y, seekedBar.transform.position.z);
 			iTween.MoveTo (seekedBar, iTween.Hash ("position", new Vector3 (0, seekedBar.transform.position.y, seekedBar.transform.position.z), "time", maxAudioTime, "easeType", "linear"));
 
 			// 音声時間maxの表示
@@ -301,6 +312,7 @@ public class MainController : MonoBehaviour
 			Debug.Log ("download file write success." + filePath);
 			audioSource.clip = www.GetAudioClip(false, true, AudioType.MPEG);
 			audioSource.Play();
+
 			// 音声の時間を保存しておく
 			maxAudioTime = audioSource.clip.length;
 			audioTime = maxAudioTime;
@@ -334,11 +346,6 @@ public class MainController : MonoBehaviour
 			unityChanTouch.useLip = true;
 
 			audioTime -= Time.deltaTime;
-			shortDescription.transform.localPosition = new Vector3 (
-				shortDescription.transform.localPosition.x - (Time.deltaTime * 240.0f), 
-				shortDescription.transform.localPosition.y, 
-				shortDescription.transform.localPosition.z
-			);
 			float nowAudioTime = maxAudioTime - audioTime;
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
 			var seconds = nts.Seconds;
