@@ -258,11 +258,10 @@ public class MainController : MonoBehaviour
 			if (shortDescription != null) {
 				// 位置を初期化
 				shortDescription.transform.localPosition = new Vector3 (windowWidth, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
-				String articleText = article.title + " " + article.description;
-				shortDescription.GetComponent<Text> ().text = articleText;
+				shortDescription.GetComponent<Text> ().text = article.text;
 
 				// テキストスクロール
-				float moveAmount = fontWidth * articleText.Length + windowWidth;
+				float moveAmount = fontWidth * article.text.Length + windowWidth;
 				iTween.MoveAdd(shortDescription, iTween.Hash("x", -moveAmount, "easeType", "linear", "time", maxAudioTime));
 			}
 
@@ -414,6 +413,7 @@ public class MainController : MonoBehaviour
 		public String link;
 		public String title;
 		public String description;
+		public String text;
 		public String image;
 		public String itemImage;
 		public String twitterImage;
