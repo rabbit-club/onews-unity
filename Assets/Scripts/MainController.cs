@@ -198,11 +198,11 @@ public class MainController : MonoBehaviour
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
-				if (article.twitterImage != "") {
+				if (article.twitterImage != "" && checkExtension(article.twitterImage)) {
 					WWW wwwImage = new WWW (article.twitterImage);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
-				} else if (article.image != "") {
+				} else if (article.image != "" && checkExtension(article.image)) {
 					WWW wwwImage = new WWW (article.image);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
@@ -397,14 +397,13 @@ public class MainController : MonoBehaviour
 		PlayerPrefs.SetString("ONEWS_ARTICLES", json);
 	}
 
-	byte[] ReadPngFile(string path){
-		FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-		BinaryReader bin = new BinaryReader(fileStream);
-		byte[] values = bin.ReadBytes((int)bin.BaseStream.Length);
+	bool checkExtension(string url){
+		string ext = System.IO.Path.GetExtension(url);
+		if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
+			return true;
+		}
 
-		bin.Close();
-
-		return values;
+		return false;
 	}
 
 	[System.Serializable]
