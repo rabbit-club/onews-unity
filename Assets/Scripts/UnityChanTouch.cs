@@ -17,7 +17,6 @@ public class UnityChanTouch : TapBehaviour {
 	void Start() {
 		anim = GetComponent<Animator>();
 		skinMesh = this.GetComponentsInChildren<SkinnedMeshRenderer>().First(s => s.name == "MTH_DEF");
-//		useLip = true; //デバッグ用
 		rndAnimTimer = Random.Range(5.0f, 10.0f);
 	}
 

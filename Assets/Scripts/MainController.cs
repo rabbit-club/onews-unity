@@ -51,9 +51,6 @@ public class MainController : MonoBehaviour
 	float maxAudioTime;
 	UIController uiController;
 
-//	bool isOffLine = false;
-
-//	public void Movie ()
 	void Start()
 	{
 		StartCoroutine (MovieStart ());
@@ -215,12 +212,6 @@ public class MainController : MonoBehaviour
 				itemNumber++;
 			}
 
-			// ローカルキャッシュを作成する
-//			createLocalCache(articles);
-//			if(isOffLine) {
-//				return false;
-//			}
-
 			if (!adFinished) {
 				int cmVoiceNumber = UnityEngine.Random.Range (0, 15);
 				AudioClip voiceC = Resources.Load("Voices/c_" + cmVoiceNumber, typeof(AudioClip)) as AudioClip;
@@ -298,14 +289,15 @@ public class MainController : MonoBehaviour
 	{
 		WWW www = new WWW (filePathUrl);
 
-		while (!www.isDone) { // ダウンロードの進捗を表示
-//			print (Mathf.CeilToInt (www.progress * 100));
+		while (!www.isDone) {
+			// ダウンロード中
 			yield return null;
 		}
 
-		if (!string.IsNullOrEmpty (www.error)) { // ダウンロードでエラーが発生した
-			Debug.Log ("error:" + www.error);
-		} else { // ダウンロードが正常に完了した
+		if (!string.IsNullOrEmpty (www.error)) {
+			// ダウンロードでエラーが発生した
+		} else {
+			// ダウンロードが正常に完了した
 			string filePath = Application.persistentDataPath + "/" + Path.GetFileName (www.url);
 			File.WriteAllBytes (filePath, www.bytes);
 			Debug.Log ("download file write success." + filePath);
@@ -390,11 +382,6 @@ public class MainController : MonoBehaviour
 	public void volumeOff() {
 		audioSource.volume = 0;
 		bgmSource.volume = 0;
-	}
-
-	void createLocalCache(ArticleData[] articles) {
-		string json = LitJson.JsonMapper.ToJson(articles);
-		PlayerPrefs.SetString("ONEWS_ARTICLES", json);
 	}
 
 	bool checkExtension(string url){
