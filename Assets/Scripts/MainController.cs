@@ -7,6 +7,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityChan;
 using LitJson;
 
@@ -191,7 +192,6 @@ public class MainController : MonoBehaviour
 			scrollContentTransform.sizeDelta = new Vector2 (scrollContentSize.x, articlesHunk.Count * 200.0f);
 
 			// リストのitem生成
-			// TODO: 切り替わるタイミングが早いため修正
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
@@ -245,14 +245,15 @@ public class MainController : MonoBehaviour
 			// 画像を表示
 			DisplaySprite.sprite = reseizeTexture(article.texture);
 
-			// 要約記事テキストの表示
+			// 記事テキストの表示
 			if (shortDescription != null) {
 				// 位置を初期化
 				shortDescription.transform.localPosition = new Vector3 (windowWidth, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
 				shortDescription.GetComponent<Text> ().text = article.text;
 
 				// テキストスクロール
-				float moveAmount = fontWidth * article.text.Length + windowWidth;
+				int textBites = Encoding.GetEncoding("Shift_JIS").GetByteCount(article.text);
+				float moveAmount = fontWidth / 2 * textBites + windowWidth;
 				iTween.MoveAdd(shortDescription, iTween.Hash("x", -moveAmount, "easeType", "linear", "time", maxAudioTime));
 			}
 
