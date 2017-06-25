@@ -7,6 +7,8 @@ public class UnityChanTouch : TapBehaviour {
 	Animator anim;
 	SkinnedMeshRenderer skinMesh;
 	float rndAnimTimer = 0.0f;
+	float rndAnimRangeMin = 10.0f;
+	float rndAnimRangeMax = 20.0f;
 	float mouseTimer = 0.0f;
 	bool mouseClose = true;
 	public bool useLip = false;
@@ -15,14 +17,13 @@ public class UnityChanTouch : TapBehaviour {
 	void Start() {
 		anim = GetComponent<Animator>();
 		skinMesh = this.GetComponentsInChildren<SkinnedMeshRenderer>().First(s => s.name == "MTH_DEF");
-//		useLip = true; //デバッグ用
 		rndAnimTimer = Random.Range(5.0f, 10.0f);
 	}
 
 	// タッチしたときに呼ばれる。
 	public override void TapDown(ref RaycastHit hit) {
 		// アニメーションしたのでランダムアニメーションの値は再取得する
-		rndAnimTimer = Random.Range(8.0f, 18.0f);
+		rndAnimTimer = Random.Range(rndAnimRangeMin, rndAnimRangeMax);
 		// アニメーションさせる
 		unityChanAnimation();
 	}
@@ -44,7 +45,7 @@ public class UnityChanTouch : TapBehaviour {
 
 			if(rndAnimTimer <= 0.0f) {
 				unityChanAnimation();
-				rndAnimTimer = Random.Range(8.0f, 18.0f);
+				rndAnimTimer = Random.Range(rndAnimRangeMin, rndAnimRangeMax);
 			}
 		}
 		if(useLip) {
@@ -69,7 +70,7 @@ public class UnityChanTouch : TapBehaviour {
 	void unityChanAnimation() {
 		anim.Rebind();
 		nowAnimation = true;
-		int animIndex = Random.Range(0, 5); // intの場合max値は含まない
+		int animIndex = Random.Range(0, 8); // intの場合max値は含まない
 		switch (animIndex) {
 		case 0:
 			anim.Play("WIN00");
@@ -85,6 +86,15 @@ public class UnityChanTouch : TapBehaviour {
 			break;
 		case 4:
 			anim.Play("WAIT04");
+			break;
+		case 5:
+			anim.Play("DAMAGED00");
+			break;
+		case 6:
+			anim.Play("LOSE00");
+			break;
+		case 7:
+			anim.Play("JUMP01B");
 			break;
 		default:
 			break;

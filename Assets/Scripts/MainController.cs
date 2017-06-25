@@ -13,12 +13,18 @@ using LitJson;
 public class MainController : MonoBehaviour
 {
 	string articlesUrlListURL = "https://www.dropbox.com/s/a5qvgdcx1sdzbwb/articles_url_list.json?dl=1";
-	string emptyImage = "Assets/Images/main_empty.png";
+	string emptyImage = "Images/main_empty";
 	int articleHunkCount = 6;
 
-	// ディスプレイサイズ
+	// アプリ内ディスプレイサイズ
 	double displayWidth = 1280;
 	double displayHeight = 960;
+
+	// アプリ画面幅
+	float windowWidth = 1080.0f;
+
+	// 字幕フォント幅
+	float fontWidth = 40.0f;
 
 	bool adFinished = true;
 
@@ -40,13 +46,11 @@ public class MainController : MonoBehaviour
 
 	AudioSource audioSource;
 	AudioSource bgmSource;
+	AudioSource[] bgmSources;
 	float audioTime;
 	float maxAudioTime;
 	UIController uiController;
 
-//	bool isOffLine = false;
-
-//	public void Movie ()
 	void Start()
 	{
 		StartCoroutine (MovieStart ());
@@ -78,16 +82,54 @@ public class MainController : MonoBehaviour
 		audioTime = 0.0f;
 		maxAudioTime = 0.0f;
 
+		DateTime now = DateTime.Now;
+		int hour = now.Hour;
+		int timeZoneBGM;
+		int timeZoneVoice;
+		if (hour >= 6 && hour < 12) {
+			// 朝
+			timeZoneBGM = 1;
+			timeZoneVoice = 1;
+		} else if (hour >= 12 && hour < 18) {
+			// 昼
+			timeZoneBGM = 2;
+			timeZoneVoice = 2;
+		} else if (hour >= 18 && hour < 24) {
+			// 夜
+			timeZoneBGM = 2;
+			timeZoneVoice = 3;
+		} else {
+			// 深夜
+			timeZoneBGM = 3;
+			timeZoneVoice = 3;
+		}
+
 		bgmSource = GameObject.Find ("BGM").GetComponent<AudioSource>();
+		bgmSource.clip = Resources.Load("BGM/bgm_" + timeZoneBGM) as AudioClip;
+		bgmSource.Play();
 
 		AudioClip seStart = Resources.Load ("SE/start", typeof(AudioClip)) as AudioClip;
 		audioSource.PlayOneShot(seStart);
 		yield return new WaitForSeconds(seStart.length);
 
-		AudioClip hello = Resources.Load("Voices/ohiru", typeof(AudioClip)) as AudioClip;
-		audioSource.PlayOneShot(hello);
-		audioTime += hello.length; // 挨拶音声の時間を初回のウェイトにする
-		audioTime += 0.5f;         // ワンテンポの間
+		AudioClip voiceA = Resources.Load("Voices/a_" + timeZoneVoice, typeof(AudioClip)) as AudioClip;
+		audioSource.PlayOneShot(voiceA);
+		audioTime += voiceA.length + 0.5f;
+
+		yield return new WaitForSeconds (audioTime);
+
+		int voiceType = UnityEngine.Random.Range (0, 4);
+		int voiceNumber;
+		if (voiceType == 0) {
+			voiceNumber = UnityEngine.Random.Range (0, 15);
+		} else {
+			voiceType = timeZoneVoice;
+			voiceNumber = UnityEngine.Random.Range (0, 5);
+		}
+
+		AudioClip voiceB = Resources.Load("Voices/b_" + voiceType + "_" + voiceNumber, typeof(AudioClip)) as AudioClip;
+		audioSource.PlayOneShot(voiceB);
+		audioTime += voiceB.length + 0.5f; // 挨拶音声の時間を初回のウェイトにする
 
 		// JSON List取得
 		WWW wwwArticlesUrlList = new WWW (articlesUrlListURL);
@@ -97,7 +139,6 @@ public class MainController : MonoBehaviour
 		// 新しい順に並び替え
 		var articlesUrlListToday = new Dictionary<string, string>();
 		var articlesUrlListYesterday = new Dictionary<string, string>();
-		DateTime now = DateTime.Now;
 		Int32 nowInt = Int32.Parse (now.ToString ("HHmm"));
 		foreach (var key in articlesUrlList.Keys) {
 			if (Int32.Parse (key) >= nowInt) {
@@ -154,31 +195,30 @@ public class MainController : MonoBehaviour
 			int itemNumber = 0;
 			foreach (var article in articlesHunk) {
 				// 画像を取得する
-				if (article.twitterImage != "") {
+				if (article.twitterImage != "" && checkExtension(article.twitterImage)) {
 					WWW wwwImage = new WWW (article.twitterImage);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
-				} else if (article.image != "") {
+				} else if (article.image != "" && checkExtension(article.image)) {
 					WWW wwwImage = new WWW (article.image);
 					yield return wwwImage;
 					article.texture = wwwImage.texture;
 				} else {
 					// 画像なし画像
-					article.texture = ReadTexture (emptyImage, (int)displayWidth, (int)displayHeight);
+					article.texture = Resources.Load (emptyImage) as Texture2D;
 				}
 
 				scrollController.setItem (itemNumber, article.title, article.timeString, article.texture, article.link);
 				itemNumber++;
 			}
 
-			// ローカルキャッシュを作成する
-//			createLocalCache(articles);
-//			if(isOffLine) {
-//				return false;
-//			}
-
 			if (!adFinished) {
-				// TODO: 広告入りのセリフ
+				int cmVoiceNumber = UnityEngine.Random.Range (0, 15);
+				AudioClip voiceC = Resources.Load("Voices/c_" + cmVoiceNumber, typeof(AudioClip)) as AudioClip;
+				audioSource.PlayOneShot(voiceC);
+				audioTime += voiceC.length + 0.5f;
+				yield return new WaitForSeconds (audioTime);
+
 				// 広告再生
 				yield return StartCoroutine (showAd());
 			}
@@ -208,8 +248,12 @@ public class MainController : MonoBehaviour
 			// 要約記事テキストの表示
 			if (shortDescription != null) {
 				// 位置を初期化
-				shortDescription.transform.localPosition = new Vector3 (5500.0f, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
-				shortDescription.GetComponent<Text> ().text = article.title + " " + article.description;
+				shortDescription.transform.localPosition = new Vector3 (windowWidth, shortDescription.transform.localPosition.y, shortDescription.transform.localPosition.z);
+				shortDescription.GetComponent<Text> ().text = article.text;
+
+				// テキストスクロール
+				float moveAmount = fontWidth * article.text.Length + windowWidth;
+				iTween.MoveAdd(shortDescription, iTween.Hash("x", -moveAmount, "easeType", "linear", "time", maxAudioTime));
 			}
 
 			// 記事タイトルの表示
@@ -230,7 +274,7 @@ public class MainController : MonoBehaviour
 			}
 
 			// シークバーを動かす
-			seekedBar.transform.position = new Vector3 (-1080, seekedBar.transform.position.y, seekedBar.transform.position.z);
+			seekedBar.transform.position = new Vector3 (-windowWidth, seekedBar.transform.position.y, seekedBar.transform.position.z);
 			iTween.MoveTo (seekedBar, iTween.Hash ("position", new Vector3 (0, seekedBar.transform.position.y, seekedBar.transform.position.z), "time", maxAudioTime, "easeType", "linear"));
 
 			// 音声時間maxの表示
@@ -245,19 +289,21 @@ public class MainController : MonoBehaviour
 	{
 		WWW www = new WWW (filePathUrl);
 
-		while (!www.isDone) { // ダウンロードの進捗を表示
-//			print (Mathf.CeilToInt (www.progress * 100));
+		while (!www.isDone) {
+			// ダウンロード中
 			yield return null;
 		}
 
-		if (!string.IsNullOrEmpty (www.error)) { // ダウンロードでエラーが発生した
-			Debug.Log ("error:" + www.error);
-		} else { // ダウンロードが正常に完了した
+		if (!string.IsNullOrEmpty (www.error)) {
+			// ダウンロードでエラーが発生した
+		} else {
+			// ダウンロードが正常に完了した
 			string filePath = Application.persistentDataPath + "/" + Path.GetFileName (www.url);
 			File.WriteAllBytes (filePath, www.bytes);
 			Debug.Log ("download file write success." + filePath);
 			audioSource.clip = www.GetAudioClip(false, true, AudioType.MPEG);
 			audioSource.Play();
+
 			// 音声の時間を保存しておく
 			maxAudioTime = audioSource.clip.length;
 			audioTime = maxAudioTime;
@@ -291,11 +337,6 @@ public class MainController : MonoBehaviour
 			unityChanTouch.useLip = true;
 
 			audioTime -= Time.deltaTime;
-			shortDescription.transform.localPosition = new Vector3 (
-				shortDescription.transform.localPosition.x - (Time.deltaTime * 240.0f), 
-				shortDescription.transform.localPosition.y, 
-				shortDescription.transform.localPosition.z
-			);
 			float nowAudioTime = maxAudioTime - audioTime;
 			TimeSpan nts = TimeSpan.FromSeconds (nowAudioTime);
 			var seconds = nts.Seconds;
@@ -343,28 +384,13 @@ public class MainController : MonoBehaviour
 		bgmSource.volume = 0;
 	}
 
-	void createLocalCache(ArticleData[] articles) {
-		string json = LitJson.JsonMapper.ToJson(articles);
-		PlayerPrefs.SetString("ONEWS_ARTICLES", json);
-	}
+	bool checkExtension(string url){
+		string ext = System.IO.Path.GetExtension(url);
+		if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
+			return true;
+		}
 
-	byte[] ReadPngFile(string path){
-		FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-		BinaryReader bin = new BinaryReader(fileStream);
-		byte[] values = bin.ReadBytes((int)bin.BaseStream.Length);
-
-		bin.Close();
-
-		return values;
-	}
-
-	Texture2D ReadTexture(string path, int width, int height){
-		byte[] readBinary = ReadPngFile(path);
-
-		Texture2D texture = new Texture2D(width, height);
-		texture.LoadImage(readBinary);
-
-		return texture;
+		return false;
 	}
 
 	[System.Serializable]
@@ -373,6 +399,7 @@ public class MainController : MonoBehaviour
 		public String link;
 		public String title;
 		public String description;
+		public String text;
 		public String image;
 		public String itemImage;
 		public String twitterImage;
