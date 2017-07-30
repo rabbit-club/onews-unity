@@ -252,8 +252,10 @@ public class MainController : MonoBehaviour
 				shortDescription.GetComponent<Text> ().text = article.text;
 
 				// テキストスクロール
-				int textBites = Encoding.GetEncoding("Shift_JIS").GetByteCount(article.text);
-				float moveAmount = fontWidth / 2 * textBites + windowWidth;
+				// バイト数にしたいがGetEncoding("Shift_JIS")は実機で動かない
+				// int textBites = Encoding.GetEncoding("Shift_JIS").GetByteCount(article.text);
+				// float moveAmount = fontWidth / 2 * textBites + windowWidth;
+				float moveAmount = fontWidth * article.text.Length + windowWidth;
 				iTween.MoveAdd(shortDescription, iTween.Hash("x", -moveAmount, "easeType", "linear", "time", maxAudioTime));
 			}
 
